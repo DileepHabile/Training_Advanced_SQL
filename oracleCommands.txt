@@ -1,0 +1,38 @@
+	# Open cmd
+
+(c) Microsoft Corporation. All rights reserved.   
+ 
+	# run first command 
+              
+C:\Users\HS>sqlplus / as sysdba
+
+	SQL*Plus: Release 12.1.0.1.0 Production on Mon Apr 3 15:07:32 2023        
+	Copyright (c) 1982, 2013, Oracle.  All rights reserved.            
+	Connected to:Oracle Database 12c Enterprise Edition Release 12.1.0.1.0 - 64bit Production     
+	With the Partitioning, OLAP, Advanced Analytics and Real Application Testing options
+
+SQL> create user user_name identified by pasword;
+
+ 	# Note: if this error occure	>>>>ERROR at line 1:/n/n         
+				>>>>ORA-65096: invalid common user or role name   
+ 	# Then run following	                     
+			>>>>SQL> alter session set "_ORACLE_SCRIPT" = true;                           
+			>>>>Session altered.
+	# Then again run create user command as below.
+
+SQL> create user user_name identified by user_passwod;
+	User created.
+
+SQL> grant connect to user_name;
+	Grant succeeded.
+
+SQL> grant all privileges to user_name;      
+	Grant succeeded.
+
+SQL> create tablespace user_name datafile 'samir.dbf' size 200m autoextend on;
+						|
+						>> file_name	
+	Tablespace created.
+
+SQL> alter user user_name quota unlimited on user_name;
+	User altered.

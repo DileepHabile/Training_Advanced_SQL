@@ -1,0 +1,5 @@
+⦁	Write a query to calculate the average salary for each department and rank the departments based on their average salary. 
+⦁	Write a query to calculate the tenure of each employee in years and rank employees by their tenure within each department
+⦁	Write a query to calculate the difference in salary between each employee and the next hired employee.
+⦁	Write a query to find the largest salary increase between consecutive hires.
+⦁	Write a query to track the salary changes over time for each employee, showing the current and previous salary with the change in percentage.
