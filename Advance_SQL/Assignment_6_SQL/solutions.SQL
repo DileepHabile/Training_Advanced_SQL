@@ -104,7 +104,7 @@ DECLARE
       SELECT department_name, department_id
       FROM departments;
       
-   CURSOR employee_cursor(p_department_id departments.department_id%TYPE) IS
+   CURSOR employee_cursor IS
       SELECT first_name || ' ' || last_name AS employee_name
       FROM employees
       WHERE department_id = p_department_id;
@@ -116,13 +116,7 @@ BEGIN
       
       DBMS_OUTPUT.PUT_LINE('Employees in Department ' || v_departmentName || ':');
       
-      -- Nested cursor FOR LOOP for employees in the current department
-      FOR employee_rec IN employee_cursor(v_departmentId)
-      LOOP
-         DBMS_OUTPUT.PUT_LINE('- ' || employee_rec.employee_name);
-      END LOOP;
-      
-      DBMS_OUTPUT.PUT_LINE('-------------------------');
+ 
    END LOOP;
 END;
 
