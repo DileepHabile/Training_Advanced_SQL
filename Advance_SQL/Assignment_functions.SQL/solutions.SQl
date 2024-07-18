@@ -269,19 +269,555 @@ END;
 --
 --Test each of the package procedures and functions with sample data.
 --
+
+----a
+--create or replace procedure insert_employee
+--(p_id IN employees.employee_id%type,
+--p_first_name IN employees.first_name%type,
+--p_last_ame IN employees.last_name%type,
+--p_email IN employees.email%type,
+--p_dept_id employees.department_id%type,
+--p_salary employees.salary%type,
+--p_manager_id employees.manager_id%type,
+--p_hire_date employees.hire_date%type)
+--IS 
+--BEGIN
+--INSERT INTO employees(employee_id,first_name,last_name,email,department_id,salary,manager_id,hire_date)
+--VALUES()
+--DBMS_OUTPUT.PUT_LINE('Employee_data is beign inserted ');
+--END insert_employee;
+--
+----b
+--create or replace function salarycalulate
+--(p_input_hours_worked IN INTEGER,
+--p_hourly_rate IN INTEGER)
+--return NUMBER
+--IS
+--p_salary  employees.salary%type;
+--BEGIN
+--p_salary :=p_input_hours*p_hourly_rate;
+--DBMS_OUTPUT.PUT_LINE('The salary obtained by the employee is: ' || p_salary );
+--return p_salary 
+--END salarycalculate;
+--
+--
+----c 
+--create or replace procedure  edit_job_title
+--(p_employee_id employees.employe_id%type)
+--IS
+--BEGIN
+--
+--update 
+--END edit_job_title;
+--
+---d 
+--create or replace function return_employee
+--(p_department_id  IN employees.department_id%type)
+--return number
+--IS
+--v_count number;
+--BEGIN
+--select count(*)
+--into v_count
+--from employees 
+--where department_id =p_department_id;
+--return v_count;
+--END return_employee;
+
+
+
+CREATE OR REPLACE PACKAGE employee_pkg IS
+
+  -- Procedure to insert a new employee into the database
+  PROCEDURE insert_employee(
+    p_id          IN employees.employee_id%TYPE,
+    p_first_name  IN employees.first_name%TYPE,
+    p_last_name   IN employees.last_name%TYPE,
+    p_email       IN employees.email%TYPE,
+    p_dept_id     IN employees.department_id%TYPE,
+    p_salary      IN employees.salary%TYPE,
+    p_manager_id  IN employees.manager_id%TYPE,
+    p_hire_date   IN employees.hire_date%TYPE
+  );
+  
+  -- Function to calculate the salary of an employee
+  FUNCTION calculate_salary(
+    p_hours_worked  IN INTEGER,
+    p_hourly_rate   IN INTEGER
+  ) RETURN NUMBER;
+  
+  -- Procedure to update the job title of an employee
+  PROCEDURE update_job_title(
+    p_employee_id  IN employees.employee_id%TYPE,
+    p_new_job_title IN employees.job_title%TYPE
+  );
+  
+  -- Function to retrieve the number of employees in a specific department
+  FUNCTION count_employees_in_department(
+    p_department_id  IN employees.department_id%TYPE
+  ) RETURN NUMBER;
+
+END employee_pkg;
+/
+
+
+
+
+CREATE OR REPLACE PACKAGE BODY employee_pkg IS
+
+
+ -- Procedure to insert a new employee into the database
+  PROCEDURE insert_employee(
+    p_id          IN employees.employee_id%TYPE,
+    p_first_name  IN employees.first_name%TYPE,
+    p_last_name   IN employees.last_name%TYPE,
+    p_email       IN employees.email%TYPE,
+    p_dept_id     IN employees.department_id%TYPE,
+    p_salary      IN employees.salary%TYPE,
+    p_manager_id  IN employees.manager_id%TYPE,
+    p_hire_date   IN employees.hire_date%TYPE
+  ) IS
+  BEGIN
+    INSERT INTO employees(employee_id, first_name, last_name, email, department_id, salary, manager_id, hire_date)
+    VALUES (p_id, p_first_name, p_last_name, p_email, p_dept_id, p_salary, p_manager_id, p_hire_date);
+    
+    COMMIT;
+    DBMS_OUTPUT.PUT_LINE('Employee inserted successfully.');
+  END insert_employee;
+  
+  -- Function to calculate the salary of an employee
+  FUNCTION calculate_salary(
+    p_hours_worked  IN INTEGER,
+    p_hourly_rate   IN INTEGER
+  ) RETURN NUMBER IS
+    v_salary NUMBER;
+  BEGIN
+    v_salary := p_hours_worked * p_hourly_rate;
+    DBMS_OUTPUT.PUT_LINE('Calculated salary for ' || p_hours_worked || ' hours worked at ' || p_hourly_rate || ' per hour is ' || v_salary);
+    RETURN v_salary;
+  END calculate_salary;
+  
+  -- Procedure to update the job title of an employee
+  PROCEDURE update_job_title(
+    p_employee_id  IN employees.employee_id%TYPE,
+    p_new_job_title IN employees.job_title%TYPE
+  ) IS
+  BEGIN
+    UPDATE employees
+    SET job_title = p_new_job_title
+    WHERE employee_id = p_employee_id;
+    
+    COMMIT;
+    DBMS_OUTPUT.PUT_LINE('Job title updated for employee ID ' || p_employee_id);
+  END update_job_title;
+  
+  -- Function to retrieve the number of employees in a specific department
+  FUNCTION count_employees_in_department(
+    p_department_id  IN employees.department_id%TYPE
+  ) RETURN NUMBER IS
+    v_count NUMBER;
+  BEGIN
+    SELECT COUNT(*)
+    INTO v_count
+    FROM employees
+    WHERE department_id = p_department_id;
+    
+    DBMS_OUTPUT.PUT_LINE('Number of employees in department ' || p_department_id || ': ' || v_count);
+    RETURN v_count;
+  END count_employees_in_department;
+
+END employee_pkg;
+/
+
+
 --8. Develop a PL/SQL package called `bank_operations_pkg` to handle basic banking operations. The package should include:
 --   a. A procedure to deposit an amount into an account.
 --   b. A procedure to withdraw an amount from an account, ensuring the balance does not go negative.
 --   c. A function to calculate the interest on the account balance based on the interest rate and time period.
 --   d. A procedure to transfer funds from one account to another.
---
+
+
+
+
+-- Package Specification --
+CREATE OR REPLACE PACKAGE bank_operations_pkh IS
+
+--   a. A procedure to deposit an amount into an account.
+  PROCEDURE deposit(
+    p_account_id   IN NUMBER,
+    p_amount       IN NUMBER
+  ) IS
+    v_balance NUMBER;
+    
+--   b. A procedure to withdraw an amount from an account, ensuring the balance does not go negative.
+      PROCEDURE withdraw(
+    p_account_id   IN NUMBER,
+    p_amount       IN NUMBER
+  ) IS
+    v_balance NUMBER;
+    
+--   c. A function to calculate the interest on the account balance based on the interest rate and time period.
+      FUNCTION calculate_interest(
+    p_account_id   IN NUMBER,
+    p_interest_rate IN NUMBER,
+    p_time_period  IN NUMBER
+  ) RETURN NUMBER IS
+    v_balance NUMBER;
+    v_interest NUMBER;
+    
+-- Procedure to transfer funds from one account to another
+  PROCEDURE transfer_funds(
+    p_from_account_id  IN NUMBER,
+    p_to_account_id    IN NUMBER,
+    p_amount           IN NUMBER
+  ) IS
+    v_from_balance NUMBER;
+    v_to_balance NUMBER;
+    
+END bank_opeartions_pkg;
+
+
+
+
+
+--Package BODY --
+CREATE OR REPLACE PACKAGE BODY bank_operations_pkg IS
+
+
+
+  -- Procedure to deposit an amount into an account
+  PROCEDURE deposit(
+    p_account_id   IN NUMBER,
+    p_amount       IN NUMBER
+  ) IS
+    v_balance NUMBER;
+  BEGIN
+    -- Retrieving the  current balance
+    SELECT balance INTO v_balance
+    FROM accounts
+    WHERE account_id = p_account_id
+    FOR UPDATE;
+    
+    -- Adding deposit amount to balance
+    v_balance := v_balance + p_amount;
+    
+    -- Update the balance in the accounts table
+    UPDATE accounts
+    SET balance = v_balance
+    WHERE account_id = p_account_id;
+    
+    COMMIT;
+  END deposit;
+  
+  
+  
+  -- Procedure to withdraw an amount from an account, ensuring non-negative balance
+  PROCEDURE withdraw(
+    p_account_id   IN NUMBER,
+    p_amount       IN NUMBER
+  ) IS
+    v_balance NUMBER;
+  BEGIN
+    -- Retrieving the  current balance
+    SELECT balance INTO v_balance
+    FROM accounts
+    WHERE account_id = p_account_id
+    FOR UPDATE;
+    
+    -- Check if sufficient balance is available
+    IF v_balance >= p_amount THEN
+      -- Subtract withdrawal amount from balance
+      v_balance := v_balance - p_amount;
+      
+      -- Updating the balance in the accounts table
+      UPDATE accounts
+      SET balance = v_balance
+      WHERE account_id = p_account_id;
+      
+      COMMIT;
+    ELSE
+      RAISE_APPLICATION_ERROR(-20001, 'Insufficient funds');
+    END IF;
+  END withdraw;
+
+
+
+  -- Function to calculate interest on the account balance
+  FUNCTION calculate_interest(
+    p_account_id   IN NUMBER,
+    p_interest_rate IN NUMBER,
+    p_time_period  IN NUMBER
+  ) RETURN NUMBER IS
+    v_balance NUMBER;
+    v_interest NUMBER;
+  BEGIN
+    -- Retrieve current balance
+    SELECT balance INTO v_balance
+    FROM accounts
+    WHERE account_id = p_account_id;
+    
+    -- Calculate interest
+    v_interest := (v_balance * p_interest_rate * p_time_period) / 100;
+    
+    RETURN v_interest;
+  END calculate_interest;
+  
+  -- Procedure to transfer funds from one account to another
+  PROCEDURE transfer_funds(
+    p_from_account_id  IN NUMBER,
+    p_to_account_id    IN NUMBER,
+    p_amount           IN NUMBER
+  ) IS
+    v_from_balance NUMBER;
+    v_to_balance NUMBER;
+  BEGIN
+    -- Ensure different accounts are involved
+    IF p_from_account_id = p_to_account_id THEN
+      RAISE_APPLICATION_ERROR(-20002, 'Source and destination accounts cannot be the same');
+    END IF;
+    
+    -- Retrieve balances
+    SELECT balance INTO v_from_balance
+    FROM accounts
+    WHERE account_id = p_from_account_id
+    FOR UPDATE;
+    
+    SELECT balance INTO v_to_balance
+    FROM accounts
+    WHERE account_id = p_to_account_id
+    FOR UPDATE;
+    
+    -- Check if sufficient balance is available for withdrawal
+    IF v_from_balance >= p_amount THEN
+      -- Perform transfer
+      v_from_balance := v_from_balance - p_amount;
+      v_to_balance := v_to_balance + p_amount;
+      
+      -- Update balances in the accounts table
+      UPDATE accounts
+      SET balance = v_from_balance
+      WHERE account_id = p_from_account_id;
+      
+      UPDATE accounts
+      SET balance = v_to_balance
+      WHERE account_id = p_to_account_id;
+      
+      COMMIT;
+    ELSE
+      RAISE_APPLICATION_ERROR(-20003, 'Insufficient funds for transfer');
+    END IF;
+  END transfer_funds;
+
+
+
+END bank_operations_pkg;
+/
+
+
+
 --9. Create a package named order_management that allows adding and listing orders. It should include:
 --
 --A procedure to add an order (order ID, customer name, order total).
 --A function to calculate the total revenue (sum of all order totals).
 --A cursor to list all orders.
 --
+
+
+
+
+-- package SPECIFIACTION --
+CREATE OR REPLACE PACKAGE order_management IS
+
+  -- Procedure to add an order
+  PROCEDURE add_order(
+    p_order_id      IN NUMBER,
+    p_customer_name IN VARCHAR2,
+    p_order_total   IN NUMBER
+  );
+  
+  -- Function to calculate total revenue (sum of all order totals)
+  FUNCTION calculate_total_revenue RETURN NUMBER;
+  
+  -- Cursor to list all orders
+  PROCEDURE list_orders;
+
+END order_management;
+/
+
+
+
+
+
+
+
+
+--Package BODY---
+CREATE OR REPLACE PACKAGE BODY order_management IS
+
+
+  -- Procedure to add an order
+  PROCEDURE add_order(
+    p_order_id      IN NUMBER,
+    p_customer_name IN VARCHAR2,
+    p_order_total   IN NUMBER
+  ) IS
+  BEGIN
+    INSERT INTO orders(order_id, customer_name, order_total)
+    VALUES (p_order_id, p_customer_name, p_order_total);
+    
+    COMMIT;
+    DBMS_OUTPUT.PUT_LINE('Order added successfully.');
+  END add_order;
+  
+  -- Function to calculate total revenue
+  FUNCTION calculate_total_revenue RETURN NUMBER IS
+    v_total_revenue NUMBER;
+  BEGIN
+    SELECT SUM(order_total)
+    INTO v_total_revenue
+    FROM orders;
+    
+    RETURN v_total_revenue;
+  END calculate_total_revenue;
+  
+  
+  
+  
+  -- Cursor to list all orders
+  PROCEDURE list_orders IS
+    CURSOR orders_cursor IS
+      SELECT order_id, customer_name, order_total
+      FROM orders;
+    v_order_id orders.order_id%TYPE;
+    v_customer_name orders.customer_name%TYPE;
+    v_order_total orders.order_total%TYPE;
+  BEGIN
+    OPEN orders_cursor;
+    LOOP
+      FETCH orders_cursor INTO v_order_id, v_customer_name, v_order_total;
+      EXIT WHEN orders_cursor%NOTFOUND;
+      DBMS_OUTPUT.PUT_LINE('Order ID: ' || v_order_id || ', Customer Name: ' || v_customer_name || ', Order Total: ' || v_order_total);
+    END LOOP;
+    CLOSE orders_cursor;
+  END list_orders;
+
+
+
+END order_management;
+/
+
+
+
+
+
+
+
 --10. Extend the order_management package with exception handling:
 --
 --Modify the add order procedure to handle cases where the order total is negative or zero by raising appropriate exceptions.
 --Handle these exceptions in a way that the caller receives a meaningful error message.
+
+
+
+
+
+
+
+-- package SPECIFIACTION --
+CREATE OR REPLACE PACKAGE order_management IS
+
+  -- Procedure to add an order
+  PROCEDURE add_order(
+    p_order_id      IN NUMBER,
+    p_customer_name IN VARCHAR2,
+    p_order_total   IN NUMBER
+  );
+  
+  -- Function to calculate total revenue (sum of all order totals)
+  FUNCTION calculate_total_revenue RETURN NUMBER;
+  
+  -- Cursor to list all orders
+  PROCEDURE list_orders;
+
+END order_management;
+/
+
+
+
+
+
+
+
+-- PACKAGE BODY ---
+--Package BODY---
+CREATE OR REPLACE PACKAGE BODY order_management IS
+
+
+
+  -- Procedure to add an order
+  PROCEDURE add_order(
+    p_order_id      IN NUMBER,
+    p_customer_name IN VARCHAR2,
+    p_order_total   IN NUMBER
+  ) IS
+  BEGIN
+    -- Check for negative or zero order total
+    IF p_order_total <= 0 THEN
+      RAISE invalid_order_total;
+    ELSE
+      -- Insert the order into the orders table
+      INSERT INTO orders(order_id, customer_name, order_total)
+      VALUES (p_order_id, p_customer_name, p_order_total);
+      
+      COMMIT;
+      DBMS_OUTPUT.PUT_LINE('Order added successfully.');
+    END IF;
+  EXCEPTION
+    WHEN invalid_order_total THEN
+      RAISE_APPLICATION_ERROR(-20001, 'Invalid order total: Order total must be greater than zero.');
+    WHEN OTHERS THEN
+      RAISE_APPLICATION_ERROR(-20002, 'An error occurred while adding the order.');
+  END add_order;
+  
+  
+  
+    -- Cursor to list all orders
+  PROCEDURE list_orders IS
+    CURSOR orders_cursor IS
+      SELECT order_id, customer_name, order_total
+      FROM orders;
+    v_order_id orders.order_id%TYPE;
+    v_customer_name orders.customer_name%TYPE;
+    v_order_total orders.order_total%TYPE;
+  BEGIN
+    OPEN orders_cursor;
+    LOOP
+      FETCH orders_cursor INTO v_order_id, v_customer_name, v_order_total;
+      EXIT WHEN orders_cursor%NOTFOUND;
+      DBMS_OUTPUT.PUT_LINE('Order ID: ' || v_order_id || ', Customer Name: ' || v_customer_name || ', Order Total: ' || v_order_total);
+    END LOOP;
+    CLOSE orders_cursor;
+  EXCEPTION:
+    WHEN OTHERS THEN 
+      RAISE_APPLICATION_ERROR(-20004, 'An error occurred while listing orders.');
+  END list_orders;
+
+
+
+  -- Function to calculate total revenue
+  FUNCTION calculate_total_revenue RETURN NUMBER IS
+    v_total_revenue NUMBER;
+  BEGIN
+    SELECT SUM(order_total)
+    INTO v_total_revenue
+    FROM orders;
+    
+    RETURN v_total_revenue;
+  EXCEPTION
+    WHEN OTHERS THEN
+      RAISE_APPLICATION_ERROR(-20003, 'An error occurred while calculating total revenue.');
+  END calculate_total_revenue;
+  
+  
+END order_management;
+/
